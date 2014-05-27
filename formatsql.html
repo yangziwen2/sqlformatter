@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>New Web Project</title>
+	<link rel="stylesheet" href="css/codemirror.css"/>
+	<script src="js/codemirror.js"></script>
+	<script src="js/mysql.js"></script>
+	<script src="js/sqlFormatter.js"></script>
+	<link rel="stylesheet" href="http://codemirror.net/doc/docs.css" />
+	<style>
+		div.CodeMirror {
+			border: 2px solid #999;
+		}
+		
+	</style>
+</head>
+<body>
+	<div class="CodeMirror" style="width: 600px; height: 300px; margin: 30px auto 0px;">
+		<textarea id="txt" style="width: 100%; height: 100%"></textarea>
+	</div>
+	<div style="text-align: center; margin-top: 30px;">
+		<button id="btn" style="font-size: 16px;">整理sql</button>
+	</div>
+</body>
+</html>
+<script>
+// var sql = "select 1 from t where i in (select 2 from p where j in (select * from k limit 3, 5) group by h) group by hehe having c = 5 and d = 6"
+// var sql = "select *,count(1),(select 2 from abc where 1=2) from t where name like '%asldfkj%'";
+var sql = "select * from ( select sc.*,oic.rank as categoryRank,oics.rank as oicsRank from sc_study_center_sc sc,org_interior_category_service oics,as_service ass,org_interior_category oic where sc.enabled_sc=true and oics.enabled=true and ass.enabled=true and sc.id_category_sc=oics.category_id and oics.asservice_id=ass.id and ass.course_id=sc.id_course_sc and sc.id_category_sc=oic.id and sc.id_buyer_sc=976982 and sc.id_org_sc=730 and sc.id_category_sc in (24497,24499,24498,24501,24500,24503,24502,24505,24504) and sc.study_center_type_sc='custom' and sc.authority_type_sc in ('orgOpen','courseCard','missedCourseCard') and sc.id_parent_sc is null  and sc.id in (select id from account where username like '%abc%' limit 3, 5) and 1=1  group by sc.id_course_sc ) as t order by t.categoryRank,t.oicsRank;";
+window.onload = function(){
+	var txt = document.getElementById('txt');
+	txt.value = sql;
+	var mirrorArr = {};
+	document.getElementById('btn').onclick = function(){
+		formatFromTextArea('txt');
+	}
+}
+var mirrorMap = {};
+function formatFromTextArea(txtId){
+	if(mirrorMap[txtId]){
+		return;
+	}
+	var txt = document.getElementById(txtId);
+	if(!txt){
+		return;
+	}
+	var res = formatSelectSql(txt.value);
+	document.getElementById('txt').value = res;
+	var editor = CodeMirror.fromTextArea(document.getElementById("txt"), {
+		mode: "text/x-mysql",
+		tabMode: "indent",
+		matchBrackets: true,
+		lineNumbers: true,
+		readOnly: true
+	});
+	mirrorMap[txtId] = editor;
+}
+
+</script>
